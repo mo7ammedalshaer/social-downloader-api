@@ -3,31 +3,36 @@ from flask_cors import CORS
 import yt_dlp
 import os
 
+# ------------------ إعداد التطبيق ------------------
 app = Flask(__name__)
 CORS(app)
 
+# ------------------ صفحة البداية ------------------
 @app.route("/")
 def home():
     return "Social Downloader API is Online! 🚀"
 
+# ------------------ واجهة استخراج الفيديو ------------------
 @app.route("/extract", methods=["POST"])
 def extract():
     data = request.get_json(silent=True)
+
+    # التحقق من وجود الرابط
     if not data or "url" not in data:
         return jsonify({"success": False, "error": "رابط الفيديو مطلوب"}), 400
 
     url = data["url"]
 
-  ydl_opts = {
+    # إعدادات yt_dlp
+    ydl_opts = {
         "quiet": True,
         "skip_download": True,
         "no_warnings": True,
-        "format": "best", # تغيير بسيط هنا لضمان الحصول على رابط مباشر سريع
-        "check_formats": False,
+        "format": "bestvideo+bestaudio/best",
         "http_headers": {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
             "Accept": "*/*",
-            "Accept-Language": "en-US,en;q=0.9",
         },
     }
 
@@ -41,7 +46,6 @@ def extract():
 
             # ------------------ جمع كل الجودات ------------------
             for f in formats:
-                # صيغة MP4 تحتوي على فيديو وصوت
                 if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('url'):
                     height = f.get('height') or 'Unknown'
                     label = f"{height}p"
@@ -61,6 +65,7 @@ def extract():
             if not no_watermark_url and qualities:
                 no_watermark_url = qualities[-1]['url']
 
+        # ------------------ إرسال البيانات ------------------
         return jsonify({
             "success": True,
             "title": info.get("title", "No Title"),
@@ -74,7 +79,7 @@ def extract():
         print(f"Server Error: {str(e)}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+# ------------------ تشغيل السيرفر ------------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
