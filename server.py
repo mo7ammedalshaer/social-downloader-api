@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import yt_dlp
-import os  # ضروري لجلب المنفذ من البيئة السحابية
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -39,24 +39,25 @@ def extract():
 
             # ------------------ جمع كل الجودات ------------------
             for f in formats:
-                # صيغة MP4 وتحتوي على فيديو وصوت
+                # صيغة MP4 تحتوي على فيديو وصوت
                 if f.get('vcodec') != 'none' and f.get('acodec') != 'none' and f.get('url'):
-                    label = f"{f.get('height', 'Unknown')}p"
+                    height = f.get('height') or 'Unknown'
+                    label = f"{height}p"
                     qualities.append({
-                        "label": label,
+                        "label": str(label),
                         "url": f["url"]
                     })
-            
+
             # ------------------ البحث عن رابط بدون علامة مائية ------------------
-            # TikTok غالبًا يحتوي على 'no_watermark' في formats
             for f in formats:
-                if 'no_watermark' in f.get('format_note', '').lower() and f.get('url'):
+                note = f.get('format_note')
+                if note and 'no_watermark' in note.lower() and f.get('url'):
                     no_watermark_url = f['url']
                     break
 
-            # إذا ما فيه no_watermark → استخدم أفضل جودة MP4
+            # لو ما فيه no_watermark → استخدم أفضل جودة MP4
             if not no_watermark_url and qualities:
-                no_watermark_url = qualities[-1]['url']  # أعلى جودة
+                no_watermark_url = qualities[-1]['url']
 
         return jsonify({
             "success": True,
