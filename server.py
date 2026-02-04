@@ -18,14 +18,16 @@ def extract():
 
     url = data["url"]
 
-    ydl_opts = {
+  ydl_opts = {
         "quiet": True,
         "skip_download": True,
         "no_warnings": True,
-        "format": "bestvideo+bestaudio/best",
+        "format": "best", # تغيير بسيط هنا لضمان الحصول على رابط مباشر سريع
+        "check_formats": False,
         "http_headers": {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
             "Accept": "*/*",
+            "Accept-Language": "en-US,en;q=0.9",
         },
     }
 
@@ -75,3 +77,4 @@ def extract():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
