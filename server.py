@@ -31,20 +31,20 @@ def extract():
         }), 400
 
     # إعدادات yt_dlp
-    ydl_opts = {
-        "quiet": True,
-        "skip_download": True,
-        "no_warnings": True,
-        "format": "bestvideo+bestaudio/best",
-        "merge_output_format": "mp4",
-        "noplaylist": True,
-        "http_headers": {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                          "AppleWebKit/537.36 (KHTML, like Gecko) "
-                          "Chrome/121.0.0.0 Safari/537.36",
-            "Accept": "*/*",
-        },
-    }
+ydl_opts = {
+    "quiet": True,
+    "skip_download": True,
+    "no_warnings": True,
+    "format": "bestvideo+bestaudio/best",
+    "merge_output_format": "mp4",
+    "noplaylist": True,
+    "cookiefile": "cookies.txt",  # <-- أضف هذا السطر
+    "http_headers": {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+        "Accept": "*/*",
+    },
+}
+
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -86,3 +86,4 @@ def extract():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
