@@ -23,15 +23,25 @@ def extract():
 
     url = data["url"]
 
+    # ------------------ التحقق من Facebook ------------------
+    if "facebook.com" in url.lower():
+        return jsonify({
+            "success": False,
+            "error": "روابط Facebook غير مدعومة مؤقتاً"
+        }), 400
+
     # إعدادات yt_dlp
     ydl_opts = {
         "quiet": True,
         "skip_download": True,
         "no_warnings": True,
         "format": "bestvideo+bestaudio/best",
+        "merge_output_format": "mp4",
+        "noplaylist": True,
         "http_headers": {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                          "(KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                          "AppleWebKit/537.36 (KHTML, like Gecko) "
+                          "Chrome/121.0.0.0 Safari/537.36",
             "Accept": "*/*",
         },
     }
@@ -42,7 +52,7 @@ def extract():
             formats = info.get("formats", [])
 
             qualities = []
-            no_watermark_url = None
+            best_url = None
 
             # ------------------ جمع كل الجودات ------------------
             for f in formats:
@@ -54,16 +64,9 @@ def extract():
                         "url": f["url"]
                     })
 
-            # ------------------ البحث عن رابط بدون علامة مائية ------------------
-            for f in formats:
-                note = f.get('format_note')
-                if note and 'no_watermark' in note.lower() and f.get('url'):
-                    no_watermark_url = f['url']
-                    break
-
-            # لو ما فيه no_watermark → استخدم أفضل جودة MP4
-            if not no_watermark_url and qualities:
-                no_watermark_url = qualities[-1]['url']
+            # ------------------ أفضل جودة (غالباً بدون مائية إذا موجود) ------------------
+            if qualities:
+                best_url = qualities[-1]['url']
 
         # ------------------ إرسال البيانات ------------------
         return jsonify({
@@ -72,7 +75,7 @@ def extract():
             "platform": info.get("extractor_key"),
             "thumbnail": info.get("thumbnail"),
             "qualities": qualities,
-            "no_watermark": no_watermark_url
+            "no_watermark": best_url  # أفضل جودة، قد تحتوي على watermark
         })
 
     except Exception as e:
