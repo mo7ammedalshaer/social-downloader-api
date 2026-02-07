@@ -23,14 +23,6 @@ def extract():
 
     url = data["url"]
 
-    # ------------------ التحقق من Facebook ------------------
-    # إذا حاب تجرب روابط Facebook العامة مع cookies، احذف السطرين التاليين
-    if "facebook.com" in url.lower():
-        return jsonify({
-            "success": False,
-            "error": "روابط Facebook غير مدعومة مؤقتاً"
-        }), 400
-
     # ------------------ إعدادات yt_dlp ------------------
     ydl_opts = {
         "quiet": True,
@@ -39,7 +31,7 @@ def extract():
         "format": "bestvideo+bestaudio/best",
         "merge_output_format": "mp4",
         "noplaylist": True,
-        "cookiefile": "cookies.txt",  # <-- استخدم هذا لملفات cookies لحسابك
+        "cookiefile": "cookies.txt",  # استخدم ملف cookies الخاص بك لتحميل فيديوهات Facebook
         "http_headers": {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
             "Accept": "*/*",
